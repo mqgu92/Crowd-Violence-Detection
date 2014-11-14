@@ -1,0 +1,48 @@
+function ExtractImageFlows( imageDir, imageName,SeqLength,flowDir )
+% Extracts the Flows for all images in a sequence
+% and saves the results into a Flow folder for later use
+%% Set up
+patchsize=8;
+gridspacing=1;
+
+%% Find start position
+dirInfo = dir(imageDir);
+
+offset = 3;
+if ispc == 0; offset = 4; end
+
+dirInfo = dirInfo(offset:end); %Offset removes folder .. .
+
+% Generate Name List
+nameList = cell(length(dirInfo),1);
+for i = 1 : length(dirInfo);nameList{i} = dirInfo(i).name;end 
+
+% Find the Specified Image by name
+ind = find(~cellfun(@isempty,strfind(nameList,imageName)));
+if isempty(ind); disp('Error'); return;end
+
+if ind + SeqLength > length(nameList); SeqLength = length(nameList)- ind;end
+
+SiftCol = cell(SeqLength,1);
+NameCol = cell(SeqLength,1);
+
+for i = ind : ind + SeqLength
+    % Load Image and Create SIFT
+    
+    im1 = imread(strcat(imageDir,'\',dirInfo(i).name));
+    disp(strcat(imageDir,'\',dirInfo(i).name));
+    im1 = imfilter(im1,fspecial('gaussian',7,1.),'same','replicate');
+    im1=imresize(im1,0.5,'bicubic');
+
+    SiftCol{i - ind + 1} = dense_sift(im1,patchsize,gridspacing);
+    NameCol{i - ind + 1} = dirInfo(i).name;
+end
+
+
+for i = 1 : length(SiftCol) - 1
+    % Calculate Flows
+    [vx1,vy1,~]=SIFTflowc2f(siftCol{p},siftCol{p+1},SIFTflowpara);
+    OutName = strcat(NameCol{i},'-to-',NameCol{i + 1});
+    OutFolder = 'flowDir',
+    save('')
+end

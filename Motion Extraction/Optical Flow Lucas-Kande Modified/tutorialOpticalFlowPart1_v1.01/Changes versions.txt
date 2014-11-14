@@ -1,0 +1,11 @@
+v 1.01:
+
+- the method 'LKimproved' has been renamed "flow1"
+- method "flow1full" is added, which is the same as "flow1" but calculated in dedicated m-file, and generates hi-res output
+- color coding of flow directions implemented using HSV color space
+- added pause function, keyboard interface, hit 'p' to toggle.
+- added framerate control. The application now has a target framerate of 25 frames/second. This will make application execution similar on all systems.
+- fixed a bug that stopped the videoInput library from working.
+- pdf has been improved, and extended. 
+- the path to 'helperFunctions' is not setup up properly on both windows and other systems(didnt work for linux)
+- The minimum lag time has been increased, so it wont crash on slower linux systems.

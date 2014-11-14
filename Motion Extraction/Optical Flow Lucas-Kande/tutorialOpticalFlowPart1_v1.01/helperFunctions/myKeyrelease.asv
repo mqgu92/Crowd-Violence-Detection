@@ -1,0 +1,25 @@
+
+%%%%CALLBACK FUNCTION FOR KEYBOARD PRESS %%%%%
+function myKeyrelease(~,evnt)
+    global g;
+    switch evnt.Key,
+      case 'uparrow'
+          g.arrowKey(2) = 0;          
+          g.inertia(2) = g.inertia(2) + arrowKeySpd;
+      case 'downarrow'
+          g.arrowKey(2) = -1;
+%           g.inertia(2) = g.inertia(2) - arrowKeySpd;
+      case 'rightarrow'
+          g.arrowKey(1) = -1;
+%           g.inertia(1) = g.inertia(1) - arrowKeySpd;
+	  case 'leftarrow'
+          g.arrowKey(1) = 1;
+%           g.inertia(1) = g.inertia(1) + arrowKeySpd;
+      otherwise
+          bUpdateText = 0;
+%             disp(['Currently no binding for: ' evnt.Key]);
+    end
+    
+    if bUpdateText
+        set(g.figH, 'Name',['[q,a]Lagtime: ' num2str(g.lagTime,'%1.2f') ',  [w,s]Speed: ' num2str(g.spdFactor(1),'%2.1f')  ',  [e,d]Rotation: ' num2str(g.spdFactor(2),'%2.1f') ]);end
+  

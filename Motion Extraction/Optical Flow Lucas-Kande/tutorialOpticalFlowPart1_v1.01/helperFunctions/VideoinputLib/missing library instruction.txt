@@ -1,0 +1,16 @@
+Mathworks do no allow precompiled binaries in the submissions, therefore the videoinput library is not here. To get this working, get the library from:
+
+http://sourceforge.net/projects/videoinput-mex/
+
+put all the binaries in the current folder(where u found this text file).
+
+The two files:
+
+vi_get_pixelsProper.m,
+vi_setup_deviceProper.m
+
+should also be in this folder.
+
+Alternatively, there will be a downloadable version of this submission, all encompassing from my webpage:
+
+http://islab.hh.se/mediawiki/index.php/Stefan_Karlsson/PersonalPage

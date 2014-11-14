@@ -1,0 +1,16 @@
+function [ FLOOR,AVERAGE,MEAN,CEIL ] = MISC_getAverageBlur( VIDEODIR )
+
+    vidObj = VideoReader(VIDEODIR);
+    numFrames = get(vidObj, 'NumberOfFrames');
+    
+    ALL = zeros(1,numFrames);
+    
+    for i = 1 : numFrames
+        %disp(strcat(num2str(i),':',num2str(numFrames)));
+        [~,ALL(i)] = MISC_isBlurred(read(vidObj,i),0);
+    end
+    FLOOR = floor(ALL);
+    AVERAGE = average(ALL);
+    MEAN = mean(ALL)
+end
+

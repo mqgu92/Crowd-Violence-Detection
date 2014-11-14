@@ -1,0 +1,146 @@
+function [  GLCMNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
+    = FN_GEPDescriptor( BASEOFFSET,LEVELS )
+% GEP Descriptor is comprised of GLCM Co-Occurannce features/ Edge
+% Cardinality and Inter-frame pixel difference between adjacent frames
+
+
+ 
+    BASEOFFSET = BASEOFFSETS{IND_OFFSET};
+    LEVELS = LEVELSET{IND_LEVEL};
+    PYRAMID = PYRAMIDS{IND_PYRAMIDS};
+    RANGE = RANGES{IND_RANGE};
+    SYMMETRY = false;   %ALWAYS FALSE
+    
+    IMRESIZE = 0.5;
+    PYRSIZE = size(PYRAMID);
+    
+    WINDOWSKIP = 30;    % Window between sample extraction
+    WINDOWSIZE = 8;        % Length of temporal window for descriptor extraction
+    FRAMERESIZE = IMRESIZE;
+    FOLD = max([VideoList{:,5}]);
+    % Determine Output Folder Name
+    FolderExtension = ['o',sprintf('%d',reshape(BASEOFFSET,1,numel(BASEOFFSET))),...
+        'l',sprintf('%d',LEVELS),...
+        'i',num2str(IMRESIZE),...
+        'p',num2str(reshape(PYRAMID,1,numel(PYRAMID))),...
+        'r',num2str(RANGE),...
+        's',sprintf('%d',SYMMETRY)];
+    FolderExtension(FolderExtension == ' ') = '';
+    FolderExtension(FolderExtension == '.') = '_';
+    
+    
+    FolderLocation = fullfile('ALLDATAMEX',DATA_VIDEO_CHOSENSET.name,...
+        ['WS',num2str(WINDOWSKIP),...
+        'W',num2str(WINDOWSIZE),...
+        'F',num2str(FOLD),...
+        FolderExtension]);
+    
+    OUTPUT = FolderLocation;
+    
+    % Create the Output Folder
+    if ~exist(OUTPUT ,'dir')
+        mkdir(OUTPUT);
+    end
+    
+    %Determine the number of FOLDS as dictated by the video list
+    
+    
+    % Variable Declaration
+    VideoListExtended = {}; totalTime = 0;
+    SourceVideoCount = size(VideoList);
+    Descriptors = []; DescriptorsTags = []; DescriptorGroup = [];
+    
+    for i = 1 : SourceVideoCount(1)
+        tic;
+        % Select the current Item Being Tested
+        VideoListItem = VideoList(i,:);
+        
+        if SourceVideoCount(2) >5 % Does the data use a custom window skip value?
+            if ~isempty(VideoList{i,6})
+                WS = VideoList{i,6}
+            else
+                WS =  WINDOWSKIP
+            end
+        end
+        
+        % Peform feature extraction
+        ExtractedVideoFeatures = RD_TextureEdgeMeasure( VideoListItem,WINDOWSIZE,...
+            WS,PYRAMID,RANGE, FRAMERESIZE,DATA_VIDEO_CHOSENSET,...
+            SYMMETRY,LEVELS,BASEOFFSET);
+        % Formate the entire Scene, Each Row is a different Window/Scene
+        ExtractedVideoFeatures = cell2mat(ExtractedVideoFeatures);
+        
+        ExtractedSceneCount = size(ExtractedVideoFeatures);
+        ExtractedSceneCount = ExtractedSceneCount(1); % Scene count is vertical
+        
+        % Append Number of Samples Taken from the sample
+        VideoListExtended = [VideoListExtended;VideoList(1,:),ExtractedSceneCount];
+        
+        if ExtractedSceneCount ~= 0 && ~isempty(ExtractedVideoFeatures);
+            % Add features to a global list
+            Descriptors = [Descriptors;ExtractedVideoFeatures];
+            % assign class tags to each feature
+            clear Tags
+            [Tags{1:ExtractedSceneCount}] = deal(VideoList{i,1});
+            DescriptorsTags = [DescriptorsTags;Tags'];
+            % Assign the feature a group within the K-folds
+            clear Tags
+            [Tags{1:ExtractedSceneCount}] = deal(VideoList{i,5});
+            DescriptorGroup = [DescriptorGroup;Tags'];
+            
+        end
+        % Output Process Time
+        currentTime = toc; totalTime = totalTime + currentTime;
+        disp(strcat(num2str(currentTime),'(',num2str(totalTime),')'));
+    end
+    
+    
+    %% LIBSVM DATA
+    LIBClassificationPerf = cell(1,FOLD);
+    LIBFinalDecision = cell(1,FOLD);
+    LIBAccuracy = cell(1,FOLD);
+    LIBProbability = cell(1,FOLD);
+    LIBActualAnswer = cell(1,FOLD);
+    LIBVocab = cell(1,FOLD);
+    LIBTrainingModel = cell(1,FOLD);
+    LIBROC = cell(FOLD,3);
+    %% LINEAR SVM DATA
+    LINClassificationPerf = cell(1,FOLD);
+    LINFinalDecision = cell(1,FOLD);
+    LINAccuracy = cell(1,FOLD);
+    LINProbability = cell(1,FOLD);
+    LINActualAnswer = cell(1,FOLD);
+    LINVocab = cell(1,FOLD);
+    LINTrainingModel = cell(1,FOLD);
+    LINROC = cell(FOLD,3);
+    %% TREE DATA
+    TREEClassificationPerf = cell(1,FOLD);
+    TREEFinalDecision = cell(1,FOLD);
+    TREEAccuracy = cell(1,FOLD);
+    TREEProbability = cell(1,FOLD);
+    TREEActualAnswer = cell(1,FOLD);
+    TREEVocab = cell(1,FOLD);
+    TREETrainingModel = cell(1,FOLD);
+    TREEROC = cell(FOLD,3);
+    
+    DescriptorsCopy = Descriptors;
+    
+    Descriptors = cell2mat(PerformPCA(Descriptors,PCA));
+    
+    GLCMNonPCADescriptors = DescriptorsCopy;
+    GLCMDescriptors = Descriptors;
+    GLCMTags = DescriptorsTags;
+    GLCMFlowList = VideoList;
+    GLCMGroup = DescriptorGroup;
+    subName = [DATA,'GLCM'];
+    save(strcat(OUTPUT,'/TestOutput','.mat'),...
+        'GLCMDescriptors',...
+        'GLCMTags',...
+        'GLCMGroup',...
+        'GLCMFlowList',...
+        'GLCMNonPCADescriptors',...
+        '-v7.3');
+    
+
+end
+

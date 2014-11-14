@@ -1,0 +1,8 @@
+function [ output_args ] = MISC_isBlurred( IMG )
+
+imFFT = fft(IMG);
+
+
+
+end
+

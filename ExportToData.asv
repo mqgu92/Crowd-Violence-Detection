@@ -1,0 +1,45 @@
+% create a matrix y, with two rows
+Desc = GEPNonPCADescriptors;
+[M N] = size(GEPNonPCADescriptors);
+%Generate Wrapper 
+StoreCell = cell(M + 1, N + 1);
+
+for i = 1 : M + 1
+    StoreCell{i,1} = strcat('P',num2str(i - 2));
+end
+
+
+for i = 1 : N + 1
+    StoreCell{1,i} = strcat('D',num2str(i - 1));
+end
+
+DescCell = num2cell(Desc);
+
+StoreCell(2:M+1,2:N+1) = DescCell;
+% open a file for writing
+fid = fopen('exptable.txt', 'w');
+
+
+% print values in column order
+% two values appear on each row of the file
+
+fprintf(fid, 'DN \n');
+fprintf(fid, '%f \n', num2str(M));
+fprintf(fid, '%f \n', num2str(N));
+
+[G GN] = grp2idx(GEPTags);  % Reduce character tags to numeric grouping
+
+for y = 1 : M + 1
+    Line = '';
+    for x = 1 : N
+        Line = strcat(Line,num2str(StoreCell{y,x}),';');
+    end
+    Line = strcat(Line,num2str(StoreCell{y,x + 1}),'\n' );
+    fprintf(fid, Line);    
+    disp(y);
+end
+
+
+fclose(fid);
+
+

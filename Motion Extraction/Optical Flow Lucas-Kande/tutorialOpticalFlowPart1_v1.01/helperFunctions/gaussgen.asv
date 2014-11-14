@@ -1,0 +1,15 @@
+function h=gaussgen(std,siz,order)
+if nargin < 2
+    siz = round(5*std);
+    siz =siz + mod(siz-1,2); %make sure odd sized
+end
+if nargin <3
+    order = 0; %regular gaussian
+end
+
+if order == 0
+    x2 = (-(siz-1)/2:(siz-1)/2).^2;
+    h = exp(-(x2)/(2*std*std));
+    h = h/sum(sum(h));
+else
+    
