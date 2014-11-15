@@ -1,12 +1,12 @@
 SetupVariables;
 
-DATA_VIDEO_CHOSENSET = DATA_VIDEO_CVD;
+DATA_VIDEO_CHOSENSET = DATA_VIDEO_UMN;
 
 VideoList = FN_PopulateStandardList(DATA_VIDEO_CHOSENSET.dir,DATA_VIDEO_CHOSENSET.fold);
 
 Param_GLCM = Param_GLCM_Default;
 
-Param_GLCM = struct('baseoffsets', [0,1;1,0;0,-1;-1,0],...
+Param_GLCM = struct('baseoffsets', [1,1;0,1;1,0;1,-1;-1,1;-1,-1;0,-1;-1,0],...
     'graylevel',32,...
     'pyramid',[1 1],...
     'range',[1]);
@@ -23,8 +23,8 @@ Param_PixelDifference=  Param_PixelDifference_Default;
 SUBSET_SIZE = 500000;
 WORDS = 2000;
 
-WindowSize = 1;
-WindowSkip = 1;
+WindowSize = 9999999;
+WindowSkip = 0;
 ImageResize = 1;
 
 % Extract Descriptors

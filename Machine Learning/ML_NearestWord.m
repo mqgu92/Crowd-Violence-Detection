@@ -7,7 +7,7 @@ function [ OUTPUT ] = ML_NearestWord( DATA, VOCAB,WORDS )
     %tic;
     for i = 1 : length(DATA)
      
-        data = DATA{i};
+        data = DATA{i,:};
         
 
         labels = knnsearch(VOCAB,data,'distance','euclidean');

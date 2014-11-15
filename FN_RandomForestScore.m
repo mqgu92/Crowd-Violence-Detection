@@ -23,7 +23,11 @@ end
 %classification = classification * length(AnswersNumeric);
 %classification = (classification * mean(RANDOM_FOREST{2}))/2* length(DATA_TAGS);
 %disp(['Classification Value: ',num2str(classification)]);
-classification = sum (cell2mat(RANDOM_FOREST{5})-1);
+ActualAnswer = cell2mat(RANDOM_FOREST{5});
+Prediction = cell2mat(RANDOM_FOREST{6});
+Misclassification = find(ActualAnswer == Prediction);
+
+classification = length(cell2mat(RANDOM_FOREST{5})) - length(Misclassification);
 
 end
 

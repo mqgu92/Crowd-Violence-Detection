@@ -13,7 +13,7 @@ Answers(AnswersNumeric == 1) = Classes(1);
 Answers(AnswersNumeric == 2) = Classes(2); 
 
 if length(unique(Classes)) == 1
-    classification = 0;
+    classification = 999999;
     return;
 end
 
@@ -23,7 +23,11 @@ end
 %classification = classification * length(AnswersNumeric);
 %classification = (classification * mean(LINEAR_SVM{2}))/2* length(DATA_TAGS);
 %disp(['Classification Value: ',num2str(classification)]);
-classification = sum (cell2mat(LINEAR_SVM{5})-1);
+ActualAnswer = cell2mat(LINEAR_SVM{5});
+Prediction = cell2mat(LINEAR_SVM{6});
+Misclassification = find(ActualAnswer == Prediction);
+
+classification = length(cell2mat(LINEAR_SVM{5})) - length(Misclassification);
 
 end
 

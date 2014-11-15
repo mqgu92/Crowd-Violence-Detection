@@ -63,8 +63,14 @@ Final_decision = mode(predictions,2);   %# votipredng: clasify as the class rece
 Actual_answer = G(TESTIDX) ;    %Gotta minus one to fit the confusion range
 
 Confusion = confusionmat(Final_decision, Actual_answer);
-[~,~,~,~,Accuracy,~] = ...
-    MISC_PlotConfusion(Confusion,[1,2],0);
+%[~,~,~,~,Accuracy,~] = ...
+%    MISC_PlotConfusion(Confusion,[1,2],0);
+
+ColSum = sum(Confusion,1);
+outMat = bsxfun (@rdivide, Confusion, ColSum);
+outMat = round(outMat.* 100);
+Accuracy = trace(outMat) /  length(outMat);
+
 
 if VERBOSE
     disp(Confusion);

@@ -14,6 +14,10 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
+# Matlab Data Files
+*.mat
+*.asv
+
 # =========================
 # Operating System Files
 # =========================
@@ -41,6 +45,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
-*.mat
-
