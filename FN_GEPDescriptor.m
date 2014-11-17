@@ -1,5 +1,5 @@
 function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
-    = FN_GEPDescriptor(VideoList,DATA_VIDEO_CHOSENSET,Param_GLCM,Param_Edge,Param_PixelDifference,WINDOWSIZE,WINDOWSKIP,IMRESIZE)
+    = FN_GEPDescriptor(VideoList,DATA_VIDEO_CHOSENSET,Param_GLCM,Param_Edge,Param_PixelDifference,WINDOWSIZE,WINDOWSKIP,WINDOWSPLIT,IMRESIZE)
 % GEP Descriptor is comprised of GLCM Co-Occurannce features/ Edge
 % Cardinality and Inter-frame pixel difference between adjacent frames
 
@@ -73,12 +73,18 @@ function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
         end
         
         % Peform feature extraction
-        ExtractedVideoFeatures = RD_TextureEdgeMeasure( VideoListItem,WINDOWSIZE,...
-            WS,PYRAMID,RANGE, FRAMERESIZE,DATA_VIDEO_CHOSENSET,...
-            SYMMETRY,LEVELS,BASEOFFSET);
-        % Formate the entire Scene, Each Row is a different Window/Scene
-        ExtractedVideoFeatures = cell2mat(ExtractedVideoFeatures);
+       % ExtractedVideoFeatures = RD_TextureEdgeMeasure( VideoListItem,WINDOWSIZE,...
+       %     WS,PYRAMID,RANGE, FRAMERESIZE,DATA_VIDEO_CHOSENSET,...
+       %     SYMMETRY,LEVELS,BASEOFFSET);
+        OFFSETS = GLCM_CalculateNeighbourhood(BASEOFFSET,RANGE);
+        EntireVideo = RD_LoadVideo(VideoListItem,FRAMERESIZE);
+        GLCM_SET = RD_ComputeGLCMSet( EntireVideo, PYRAMID, OFFSETS,LEVELS );
+        ExtractedVideoFeatures = RD_ComputeGLCMFeatures(GLCM_SET, WINDOWSIZE,WINDOWSPLIT,WINDOWSKIP,[1:4]');
         
+       % Formate the entire Scene, Each Row is a different Window/Scene
+        if iscell( ExtractedVideoFeatures)
+        ExtractedVideoFeatures = cell2mat(ExtractedVideoFeatures);
+        end
         ExtractedSceneCount = size(ExtractedVideoFeatures);
         ExtractedSceneCount = ExtractedSceneCount(1); % Scene count is vertical
         

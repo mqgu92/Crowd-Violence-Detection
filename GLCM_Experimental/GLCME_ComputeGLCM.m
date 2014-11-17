@@ -11,6 +11,12 @@ Image = IMAGE;
 ISize = size(Image);
 GLCMPartitionCollection = cell(M,N,length(OFFSETS));
 
+            MinValue = min(IMAGE(:)); MaxValue = max(IMAGE(:));
+            NL = LEVELS;
+            IMAGE = round((IMAGE - MinValue ) * (NL ) / (MaxValue - MinValue));
+            IMAGE(IMAGE > NL) = NL;
+            IMAGE(IMAGE < 1) = 1;  
+            
 for g = 1: length(OFFSETS)
     % Each Offset value has it's own GLCM Matrix
     OFFSET = OFFSETS(g,:);
@@ -46,9 +52,8 @@ for g = 1: length(OFFSETS)
             I = IMAGE(YRange,XRange);
             
             % Scale Image Intensities
-            GL = [min(IMAGE(:)) max(IMAGE(:))];
-            NL = LEVELS;
-%             if GL(2) == GL(1)
+
+%             if MaxValue == MinValue
 %                 SI = ones(size(I));
 %             else
 %                 slope = NL / (GL(2) - GL(1));
@@ -61,10 +66,8 @@ for g = 1: length(OFFSETS)
 
 %             % Compute GLCM
 
-            SI = round((I - GL(1) ) * (NL ) / (GL(2) - GL(1)));
-            SI(SI > NL) = NL;
-            SI(SI < 1) = 1;   
-            GLCM_MEX = GLCMCPP(SI - 1, LEVELS,OFFSET(1),OFFSET(2));
+ 
+            GLCM_MEX = GLCMCPP(I - 1, LEVELS,OFFSET(1),OFFSET(2));
             GLCMData = GLCM_MEX;
             
             GLCMPartitionCollection{y,x,g} = GLCMData;

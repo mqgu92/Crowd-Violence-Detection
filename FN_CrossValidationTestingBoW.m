@@ -1,4 +1,4 @@
-function [RAND_FOREST,LINEAR_SVM] = FN_CrossValidationTestingBoW( DATA,DATA_GROUP,DATA_TAGS,USE_LINEAR_SVM,USE_RANDOM_FOREST,Param_GLCM,WORDS,SUBSET_SIZE )
+function [RAND_FOREST,LINEAR_SVM] = FN_CrossValidationTestingBoW( DATA,DATA_GROUP,DATA_TAGS,USE_LINEAR_SVM,USE_RANDOM_FOREST,Param_GLCM,WORDS,SUBSET_SIZE,WINDOWSPLIT )
 global RANDOM_FOREST_VERBOSE;
 global RANDOM_FOREST_TREES;
 global RANDOM_FOREST_VERBOSE_MODEL;
@@ -57,8 +57,8 @@ for k = 1: Folds
     
     %Generate Vocobulary from Training Data
     
-    UnFormattedData = FN_ReformalizeDescriptorFromStructure( DATA, Param_GLCM.pyramid,8 );
-    TRAINData = FN_ReformalizeDescriptorFromStructure( DATA(TRAINIDX,:), Param_GLCM.pyramid,8 );
+    UnFormattedData = FN_ReformalizeDescriptorFromStructure( DATA, Param_GLCM.pyramid,WINDOWSPLIT,8 );
+    TRAINData = FN_ReformalizeDescriptorFromStructure( DATA(TRAINIDX,:), Param_GLCM.pyramid,WINDOWSPLIT,8 );
     TRAINData = cell2mat(TRAINData);
     % Pick a subset
     if SUBSET_SIZE <= length(TRAINData)

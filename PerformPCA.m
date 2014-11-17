@@ -1,14 +1,17 @@
 function [ Descriptors,e ] = PerformPCA( Descriptors )
     % Perform Dimension Reduction
-    Descriptors = mat2cell(Descriptors);
+        if ~iscell(Descriptors)
+            Descriptors = num2cell(Descriptors);  
+        end
         ElementsToKeepMin = 2;%;
         %% Perform PCA on DATA
         pyrDataSize = size(Descriptors);
         %Fill in missing data
         
+        [M N] = size(Descriptors);
         %Create Mat vectors
-        yMatVect = zeros(length(Descriptors),1);
-        for m = 1:length(Descriptors)
+        yMatVect = zeros(M,1);
+        for m = 1:M
             subSize = size(Descriptors{m});
             yMatVect(m) = subSize(1);
         end

@@ -8,13 +8,14 @@ VideoList = FN_PopulateStandardList(DATA_VIDEO_CHOSENSET.dir,DATA_VIDEO_CHOSENSE
 
 %% CHOOSE DATASET
 %DATA_VIDEO_CHOSENSET = DATA_VIDEO_UFC;
-WORDS = 1000;
+WORDS = 3000;
 SUBSET_SIZE = 500000;
 BASEOFFSETS = {[0 1; 1 0; 0 -1; -1 0]};
-LEVELSET = {32,64,128};
-PYRAMIDS = {[1 1],[1 1; 4 4],[1 1 ;4 4; 8 8]};
-RANGES = {1,[1 2],[1 2 4],[1 2 4 8]};
-WINDOWSIZES = {12,24,48,99999};
+LEVELSET = {64};
+PYRAMIDS = {[4 4]};
+RANGES = {[1 2]};
+%WINDOWSIZES = {12,24,48,99999};
+WINDOWSPLITS = {1 2 3 4 5};
 WINDOWSIZES = {999999};
 PCA = true;
 DATA = DATA_VIDEO_CHOSENSET.name;
@@ -24,13 +25,15 @@ IND_OFFSET = 1;
 IND_LEVEL = 1;
 IND_PYRAMIDS = 1;
 IND_RANGE = 1;
+IND_WINDOWSPLIT = 1;
 WINDOWSKIP = 1;    % Window between sample extraction
+
 %WINDOWSIZE = 25;        % Length of temporal window for descriptor extraction
 
     
 
 TESTNUMBER = length(BASEOFFSETS) * length(LEVELSET) * length(PYRAMIDS) *...
-    length(RANGES);
+    length(RANGES) * length(WINDOWSPLITS) * length(WINDOWSIZES);
 
 % Accuracy, ROC, ROC PLOT , One for Frest, One for SVM
 GLOBALOUTPUT =  cell(TESTNUMBER,11);
@@ -44,6 +47,7 @@ for TEST = 1:TESTNUMBER
     LEVELS = LEVELSET{IND_LEVEL};
     PYRAMID = PYRAMIDS{IND_PYRAMIDS};
     RANGE = RANGES{IND_RANGE};
+    WINDOWSPLIT = WINDOWSPLITS{IND_WINDOWSPLIT};
     SYMMETRY = false;   %ALWAYS FALSE
     
     IMRESIZE = 1;
@@ -121,11 +125,19 @@ Param_PixelDifference=  Param_PixelDifference_Default;
         end
         
         % Peform feature extraction
-        ExtractedVideoFeatures = RD_TextureEdgeMeasure( VideoListItem,WINDOWSIZE,...
-            WS,PYRAMID,RANGE, FRAMERESIZE,DATA_VIDEO_CHOSENSET,...
-            SYMMETRY,LEVELS,BASEOFFSET);
+      %  ExtractedVideoFeatures = RD_TextureEdgeMeasure( VideoListItem,WINDOWSIZE,...
+       %     WS,PYRAMID,RANGE, FRAMERESIZE,DATA_VIDEO_CHOSENSET,...
+       %     SYMMETRY,LEVELS,BASEOFFSET);
         % Formate the entire Scene, Each Row is a different Window/Scene
+        OFFSETS = GLCM_CalculateNeighbourhood(BASEOFFSET,RANGE);
+        EntireVideo = RD_LoadVideo(VideoListItem,FRAMERESIZE);
+        GLCM_SET = RD_ComputeGLCMSet( EntireVideo, PYRAMID, OFFSETS,LEVELS );
+        ExtractedVideoFeatures = RD_ComputeGLCMFeatures(GLCM_SET, WINDOWSIZE,WINDOWSPLIT,WINDOWSKIP,[1:4]');
+        
+       % Formate the entire Scene, Each Row is a different Window/Scene
+        if iscell( ExtractedVideoFeatures)
         ExtractedVideoFeatures = cell2mat(ExtractedVideoFeatures);
+        end
         
         ExtractedSceneCount = size(ExtractedVideoFeatures);
         ExtractedSceneCount = ExtractedSceneCount(1); % Scene count is vertical
@@ -216,8 +228,8 @@ Param_PixelDifference=  Param_PixelDifference_Default;
         
         %Generate Vocobulary from Training Data
         
-        UnFormattedData = FN_ReformalizeDescriptorFromStructure( GEPNonPCADescriptors, PYRAMID,10 );
-        TRAINData = FN_ReformalizeDescriptorFromStructure( GEPNonPCADescriptors(TRAINIDX,:),PYRAMID,10 );
+        UnFormattedData = FN_ReformalizeDescriptorFromStructure( GEPNonPCADescriptors, PYRAMID,8,WINDOWSPLIT );
+        TRAINData = FN_ReformalizeDescriptorFromStructure( GEPNonPCADescriptors(TRAINIDX,:),PYRAMID,8,WINDOWSPLIT );
         TRAINData = cell2mat(TRAINData);
         % Pick a subset
         if SUBSET_SIZE <= length(TRAINData)
@@ -319,6 +331,11 @@ Param_PixelDifference=  Param_PixelDifference_Default;
                     IND_WINDOW = IND_WINDOW + 1;
                     if mod(IND_WINDOW,length(WINDOWSIZES) + 1) == 0
                         IND_WINDOW = 1;
+                        
+                        IND_WINDOWSPLIT = IND_WINDOWSPLIT + 1;
+                        if mod(IND_WINDOWSPLIT,length(WINDOWSPLITS) + 1) == 0
+                            IND_WINDOWSPLIT = 1;
+                        end
                     end
                 end
             end
