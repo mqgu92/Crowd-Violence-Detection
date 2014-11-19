@@ -176,7 +176,7 @@ for q = 1: PYRSIZE(1)
                 
                 for p = 1: prod(CurrentPyramidStructure)
                     
-                          [ XRange,YRange ] = MISC_SplitMatInd( BW,CurrentPyramidStructure(1),...
+                          [ XRange,YRange ] = MISC_SplitMatInd( f1,CurrentPyramidStructure(1),...
             CurrentPyramidStructure(2),CurrentPyramidStructure(1),CurrentPyramidStructure(2) );
                     SubF = f1(YRange,XRange) - f2(YRange,XRange);
                     DiffSeries(f + 1,p) =  sum(sum(SubF))/ numel(SubF);
