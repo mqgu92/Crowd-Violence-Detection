@@ -5,8 +5,9 @@ function [ OUT_DESCRIPTORS ] = FN_ReformalizeDescriptorFromStructure( DESCRIPTOR
 DescriptorSize = size(DESCRIPTORS);
 OUT_DESCRIPTORS = reshape(DESCRIPTORS, sum(sum(prod(STRUCTURE,2))) * DescriptorSize(1),FEATURES_PER_CELL * WINDOW_SPLIT);
 
+[M, ~] = size(OUT_DESCRIPTORS);
 OUT_DESCRIPTORS = mat2cell(OUT_DESCRIPTORS,...
-ones( length(OUT_DESCRIPTORS)/  sum(sum(prod(STRUCTURE,2))) ,1) * sum(sum(prod(STRUCTURE,2))) ,FEATURES_PER_CELL * WINDOW_SPLIT);
+ones( M/  sum(sum(prod(STRUCTURE,2))) ,1) * sum(sum(prod(STRUCTURE,2))) ,FEATURES_PER_CELL * WINDOW_SPLIT);
 
 
 

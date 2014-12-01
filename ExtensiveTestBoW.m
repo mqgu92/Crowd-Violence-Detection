@@ -8,14 +8,14 @@ VideoList = FN_PopulateStandardList(DATA_VIDEO_CHOSENSET.dir,DATA_VIDEO_CHOSENSE
 
 %% CHOOSE DATASET
 %DATA_VIDEO_CHOSENSET = DATA_VIDEO_UFC;
-WORDSSET = {50,100,500,1000,1500,2500,3000};
+WORDSSET = {100,500,1000,2000,3000};
 SUBSET_SIZE = 500000;
 BASEOFFSETS = {[0 1] ,[0 1; 1 0; 0 -1; -1 0]};
-LEVELSET = {64,128};
-PYRAMIDS = {[1 1] ,[1 1; 2 2; 4 4; 8 8],[4 4; 8 8]};
-RANGES = {[1 2],[1:4], [1:10]};
+LEVELSET = {64};
+PYRAMIDS = {[1 1] ,[4 4; 8 8]};
+RANGES = {[1 2],[1:4]};
 %WINDOWSIZES = {12,24,48,99999};
-WINDOWSPLITS = {1 2 3 4 5 6 7 8 9};
+WINDOWSPLITS = {1 2 4  16};
 WINDOWSIZES = { 12 24 48 999999};
 PCA = true;
 DATA = DATA_VIDEO_CHOSENSET.name;
@@ -41,7 +41,7 @@ GLOBALOUTPUT =  cell(TESTNUMBER,12);
 % TESTNUMBER * 6, 1 TEST ALL FEATURES, ANOTHER JUST MOTION, ANOTHER JUST
 % VISUAL and a variant with and without PCA
 
-for TEST = 1:TESTNUMBER
+for TEST =TEST:TESTNUMBER
     
     WINDOWSIZE = WINDOWSIZES{IND_WINDOW};
     BASEOFFSET = BASEOFFSETS{IND_OFFSET};
@@ -106,7 +106,7 @@ for TEST = 1:TESTNUMBER
     FeatureSetFolderLocation = fullfile('FEATURESETS',DATA_VIDEO_CHOSENSET.name,...
           [FolderExtension]);
     
-    FeatureSetOutput = ''
+    FeatureSetOutput = '';
     
     %Determine the number of FOLDS as dictated by the video list
     if ~Loaded
@@ -134,14 +134,17 @@ for TEST = 1:TESTNUMBER
             
             %Formate the entire Scene, Each Row is a different Window/Scene
             OFFSETS = GLCM_CalculateNeighbourhood(BASEOFFSET,RANGE);
-            EntireVideo = RD_LoadVideo(VideoListItem,FRAMERESIZE);
             VideoFeatureSetFolderLocation = fullfile(FeatureSetFolderLocation,VideoListItem{3});
             
             if exist(VideoFeatureSetFolderLocation,'dir')
+                 disp('Loading Sets');
                  load(fullfile(VideoFeatureSetFolderLocation,'GLCM_SET.mat'));
                  load(fullfile(VideoFeatureSetFolderLocation,'EDGE_SET.mat'));
                  load(fullfile(VideoFeatureSetFolderLocation,'PD_SET.mat'));
             else
+                 EntireVideo = RD_LoadVideo(VideoListItem,FRAMERESIZE);
+           
+                disp('Generating Sets');
                 %Compute Basic Features and Partition
                 GLCM_SET = RD_ComputeGLCMSet( EntireVideo, PYRAMID, OFFSETS,LEVELS );
                 EDGE_SET = RD_ComputeEDGESet(EntireVideo, PYRAMID,'prewitt');
@@ -237,17 +240,18 @@ for TEST = 1:TESTNUMBER
         
         % Choose a random subset of samples from the reformalized
         % description
-        if SUBSET_SIZE <= length(TRAINData)
-            SubsetInd = randperm(length(TRAINData));
+        [TrainDataSize , ~] = size(TRAINData); 
+        if SUBSET_SIZE <= TrainDataSize
+            SubsetInd = randperm(TrainDataSize);
             SubsetInd = SubsetInd(1:SUBSET_SIZE);
         else
-            SubsetInd = 1:length(TRAINData);
+            SubsetInd = 1:TrainDataSize;
         end
         
         % Perform K-Means clustering to determine the visual words that
         % will be used to classify the system
         if length(SubsetInd) < WORDS
-            VOCAB = ML_VocabGeneration( TRAINData(SubsetInd,:), length(SubsetInd) );
+            VOCAB = ML_VocabGeneration( TRAINData(SubsetInd,:), TrainDataSize );
         else
             VOCAB = ML_VocabGeneration( TRAINData(SubsetInd,:), WORDS );
         end

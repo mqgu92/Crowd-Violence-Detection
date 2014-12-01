@@ -11,7 +11,7 @@ VIDEOSET = 'C:\Users\c1112308\Documents\Datasets\Video';
 DATA_GLCM = 'F:\DATA\DATA-GLCMMEX';
 
 DATA_VIDEO_UCF = struct('dir',[VIDEOSET,'\UCF Modified\Normal_Abnormal_Crowd Converted'],...
-    'name','UCF Modified','fold', 2);
+    'name','UCF Modified2','fold', 2);
 
 DATA_VIDEO_UMN = struct('dir',[VIDEOSET,'\UMN\Crowd-Activity']...
     ,'name','UMN','fold', 2);
