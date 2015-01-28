@@ -18,9 +18,12 @@ if isempty(getIndex)
     WINDOW_SIZE = N;
 end
 
-TemporalIntervals = [0,cumsum(diff(round(linspace(0,WINDOW_SIZE,WINDOW_SPLIT+1))))];
+TemporalIntervals = [0,cumsum(diff(round(linspace(0,WINDOW_SIZE,WINDOW_SPLIT + 1))))];
 TemporalIntervals(end) = TemporalIntervals(end) - 1; 
 [~ ,T] = size(TemporalIntervals);
+
+TemporalIntervals(TemporalIntervals >= N) = N - 1;
+
 
 S = length(getIndex);
 
@@ -69,13 +72,13 @@ for P = 1 : M
            for G = 1 : PartitionSize
 
                 SubFinalFeature(1 + F * 2 * (G - 1))  = mean(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),1 + F * (G - 1)));
-                SubFinalFeature(2 + F * 2 * (G - 1))  = std(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),1 + F * (G - 1)));
+                SubFinalFeature(2 + F * 2 * (G - 1))  = var(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),1 + F * (G - 1)));
                 SubFinalFeature(3 + F * 2 * (G - 1))  = mean(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),2 + F * (G - 1)));
-                SubFinalFeature(4 + F * 2 * (G - 1))  = std(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),2 + F * (G - 1)));
+                SubFinalFeature(4 + F * 2 * (G - 1))  = var(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),2 + F * (G - 1)));
                 SubFinalFeature(5 + F * 2 * (G - 1))  = mean(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),3 + F * (G - 1)));
-                SubFinalFeature(6 + F * 2 * (G - 1))  = std(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),3 + F * (G - 1)));
+                SubFinalFeature(6 + F * 2 * (G - 1))  = var(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),3 + F * (G - 1)));
                 SubFinalFeature(7 + F * 2 * (G - 1))  = mean(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),4 + F * (G - 1)));
-                SubFinalFeature(8 + F * 2 * (G - 1))  = std(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),4 + F * (G - 1)));
+                SubFinalFeature(8 + F * 2 * (G - 1))  = var(SubFeatureSet(WindowStart + TemporalIntervals(TT) : WindowStart + TemporalIntervals(TT + 1),4 + F * (G - 1)));
                
            
            end

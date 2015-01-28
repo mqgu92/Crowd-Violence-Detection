@@ -1,15 +1,15 @@
 SetupVariables;
 
-DATA_VIDEO_CHOSENSET = DATA_VIDEO_UMN;
+DATA_VIDEO_CHOSENSET = DATA_VIDEO_CVDMULTI;
 
 VideoList = FN_PopulateStandardList(DATA_VIDEO_CHOSENSET.dir,DATA_VIDEO_CHOSENSET.fold);
 
 Param_GLCM = Param_GLCM_Default;
 
-Param_GLCM = struct('baseoffsets', [1,1;0,1;1,0;1,-1;-1,1;-1,-1;0,-1;-1,0],...
-    'graylevel',32,...
-    'pyramid',[ 4 4],...
-    'range',[1]);
+Param_GLCM = struct('baseoffsets', [1 0;-1 0;0 1;0 -1],...
+    'graylevel',64,...
+    'pyramid',[1 1; 2 2],...
+    'range',[1 2] );
 %    'pyramid',[1 1; 1 2; 2 1; 2 2; 3 3; 1 3; 2 3; 3 1; 3 2; 4 4],...
 % Param_GLCM = struct('baseoffsets', [1,1;0,1;1,0;1,-1;-1,1;-1,-1;0,-1;-1,0],...
 %     'graylevel',32,...
@@ -21,11 +21,11 @@ Param_EdgeCardinality = Param_EdgeCardinality_Default;
 Param_PixelDifference=  Param_PixelDifference_Default;
 
 SUBSET_SIZE = 500000;
-WORDS = 2000;
-
-WindowSize = 24;
-WindowSkip = 1;
-WindowSplit = 4;
+WORDS = 4000;
+BACKGROUNDTYPE = 1;
+WindowSize = 12;
+WindowSkip = 18;
+WindowSplit = 3;
 ImageResize = 1;
 
 % Extract Descriptors
@@ -38,7 +38,8 @@ ImageResize = 1;
     WindowSize,...
     WindowSkip,...
     WindowSplit,...
-    ImageResize);
+    ImageResize,...
+    BACKGROUNDTYPE);
 
 % Perform Classification
 [RANDOM_FOREST,LINEAR_SVM] = ...
@@ -46,11 +47,10 @@ ImageResize = 1;
     GEPGroup,...
     GEPTags,...
     true,...
-    false,...
+    true,...
     Param_GLCM,WORDS,SUBSET_SIZE,WindowSplit);
 
 
-% Get ROC Curve
 AnswersNumeric = cell2mat(RANDOM_FOREST{6});
 Classes =  RANDOM_FOREST{7};
 Answers = cell(length(AnswersNumeric),1);
@@ -63,8 +63,13 @@ TreeProb = cell2mat(RANDOM_FOREST{3}); TreeProb = TreeProb(:,1);
 figure, plot(RF_X,RF_Y);
 title('ROC before and after feature selection');
 legend(['Random Forest : ',num2str(RF_AUC)]);
+mean(RANDOM_FOREST{2})
 
-
+[X,Y,T,LINAUC] = perfcurve(Answers ,  cell2mat(LINEAR_SVM{3}) ,'Abnormal' );
+    figure, plot(X,Y);
+title('ROC before and after feature selection');
+legend(['Linear SVM : ',num2str(LINAUC)]);    
+mean(LINEAR_SVM{2})
 % 
 % GEPNonPCADescriptors = FN_ReformalizeDescriptorFromStructure( GEPNonPCADescriptors, Param_GLCM.pyramid,8 );
 % 

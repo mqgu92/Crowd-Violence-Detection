@@ -13,7 +13,11 @@ GLCMPartitionCollection = cell(M,N,length(OFFSETS));
 
             MinValue = min(IMAGE(:)); MaxValue = max(IMAGE(:));
             NL = LEVELS;
+            if MaxValue - MinValue ~= 0
             IMAGE = round((IMAGE - MinValue ) * (NL ) / (MaxValue - MinValue));
+            else
+            IMAGE = (IMAGE - MinValue ) * (NL);
+            end
             IMAGE(IMAGE > NL) = NL;
             IMAGE(IMAGE < 1) = 1;  
             

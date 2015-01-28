@@ -3,15 +3,21 @@ global RANDOM_FOREST_VERBOSE;
 global RANDOM_FOREST_TREES;
     RANDOM_FOREST_TREES = 15;
 global RANDOM_FOREST_VERBOSE_MODEL;
-    RANDOM_FOREST_VERBOSE_MODEL = true;
+    RANDOM_FOREST_VERBOSE_MODEL = false;
 global LINEAR_SVM_VERBOSE;
     LINEAR_SVM_VERBOSE = true;
-    
-VIDEOSET = 'C:\Users\c1112308\Documents\Datasets\Video';    
+global DIR_STIP;
+    DIR_STIP = fullfile(pwd,'Space Time Interest Points');
+
+VIDEOSET = 'E:\Datasets\Video';    
 DATA_GLCM = 'F:\DATA\DATA-GLCMMEX';
 
 DATA_VIDEO_UCF = struct('dir',[VIDEOSET,'\UCF Modified\Normal_Abnormal_Crowd Converted'],...
-    'name','UCF Modified2','fold', 2);
+    'name','UCFS Modified2','fold', 2);
+
+%NXN is the 3 by 3 video display
+DATA_VIDEO_NXN = struct('dir',[VIDEOSET,'\NXN'],...
+    'name','XNX','fold', 2);
 
 DATA_VIDEO_UMN = struct('dir',[VIDEOSET,'\UMN\Crowd-Activity']...
     ,'name','UMN','fold', 2);
@@ -20,6 +26,14 @@ DATA_VIDEO_UMN_TEN = struct('dir',[VIDEOSET,'\UMN\Crowd-Activity']...
 
 DATA_VIDEO_CVD = struct('dir',[VIDEOSET,'\CVD']...
     ,'name','CVD','fold', 4);
+
+DATA_VIDEO_CVDS = struct('dir',[VIDEOSET,'\CVD']...
+    ,'name','CVDS','fold', 4);
+DATA_VIDEO_CVDALL = struct('dir',[VIDEOSET,'\CVD All']...
+    ,'name','CVDALL','fold', 4);
+
+DATA_VIDEO_CVDMULTI = struct('dir',[VIDEOSET,'\CVD MultiClass']...
+    ,'name','CVDMULTI','fold', 4);
 
 DATA_VIDEO_HOCKEY = struct('dir',[VIDEOSET,'\Hockey']...
     ,'name','HOCKEY','fold', 5);

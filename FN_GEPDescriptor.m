@@ -1,5 +1,5 @@
 function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
-    = FN_GEPDescriptor(VideoList,DATA_VIDEO_CHOSENSET,Param_GLCM,Param_Edge,Param_PixelDifference,WINDOWSIZE,WINDOWSKIP,WINDOWSPLIT,IMRESIZE)
+    = FN_GEPDescriptor(VideoList,DATA_VIDEO_CHOSENSET,Param_GLCM,Param_Edge,Param_PixelDifference,WINDOWSIZE,WINDOWSKIP,WINDOWSPLIT,IMRESIZE,SUBTRACT)
 % GEP Descriptor is comprised of GLCM Co-Occurannce features/ Edge
 % Cardinality and Inter-frame pixel difference between adjacent frames
 
@@ -35,7 +35,9 @@ function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
     FolderLocation = fullfile('ALLDATAMEX',DATA_VIDEO_CHOSENSET.name,...
         ['WS',num2str(WINDOWSKIP),...
         'W',num2str(WINDOWSIZE),...
+        'WSL', num2str(WINDOWSPLIT),...
         'F',num2str(FOLD),...
+        'B',num2str(SUBTRACT),...
         FolderExtension]);
     
     OUTPUT = FolderLocation;
@@ -51,7 +53,7 @@ function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
         end
     end
     
-
+    VidName = [];
     % Variable Declaration
     VideoListExtended = {}; totalTime = 0;
     SourceVideoCount = size(VideoList);
@@ -63,7 +65,7 @@ function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
         VideoListItem = VideoList(i,:);
         
         if SourceVideoCount(2) > 5 % Does the data use a custom window skip value?
-            if ~isempty(VideoList{i,6})
+            if ~isempty(VideoListItem{6})
                 WS = VideoList{i,6};
             else
                 WS =  WINDOWSKIP;
@@ -78,8 +80,49 @@ function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
        %     SYMMETRY,LEVELS,BASEOFFSET);
         OFFSETS = GLCM_CalculateNeighbourhood(BASEOFFSET,RANGE);
         EntireVideo = RD_LoadVideo(VideoListItem,FRAMERESIZE);
-        GLCM_SET = RD_ComputeGLCMSet( EntireVideo, PYRAMID, OFFSETS,LEVELS );
-        ExtractedVideoFeatures = RD_ComputeGLCMFeatures(GLCM_SET, WINDOWSIZE,WINDOWSPLIT,WINDOWSKIP,[1:4]');
+        GLCM_SET = [];
+        if exist('SUBTRACT','var')
+            if SUBTRACT == 0
+                disp('No Background Subtraction');
+                GLCM_SET = RD_ComputeGLCMSet( EntireVideo, PYRAMID, OFFSETS,LEVELS );
+            elseif SUBTRACT == 1
+                disp('Standard GEP Subtraction')
+                GLCM_SET = RD_ComputeGLCMSetSubtract( EntireVideo, PYRAMID, OFFSETS,LEVELS );
+            end
+        else
+            disp('No Background Subtraction');
+            GLCM_SET = RD_ComputeGLCMSet( EntireVideo, PYRAMID, OFFSETS,LEVELS );
+        end
+        
+        %EDGE_SET = RD_ComputeEDGESet(EntireVideo, PYRAMID,'prewitt');
+        %PD_SET = RD_ComputePDSet(EntireVideo, PYRAMID);
+        
+        %PDFeatures = RD_ComputePDFeatures( PD_SET,WINDOWSIZE,WINDOWSPLIT,WINDOWSKIP );
+
+            GLCMFeatures = RD_ComputeGLCMFeatures(GLCM_SET, WINDOWSIZE,WINDOWSPLIT,WS,[1:4]');
+
+            
+        
+      %  EDGEFeatures = RD_ComputeEDGEFeatures( EDGE_SET,WINDOWSIZE,WINDOWSPLIT,WINDOWSKIP );
+        
+        ExtractedVideoFeatures = [GLCMFeatures];
+
+        %Generate Some Test Points
+
+        %VOLUMES = STIP_LoadPoints( VideoListItem,DATA_VIDEO_CHOSENSET );
+
+        
+        %GLCM_SET = RD_ComputeGLCMSet( EntireVideo, PYRAMID,VOLUMES, OFFSETS,LEVELS );
+        
+        % Need to Place Features into Groups based on temporal locations,
+        % then I need to reformalize everything else so that it can accept
+        % large groups of features
+        %ExtractedVideoFeatures = [];
+        %for F = 1: length(GLCM_SET)
+        %    TempFeatures = RD_ComputeGLCMFeatures(GLCM_SET(F), WINDOWSIZE,WINDOWSPLIT,WINDOWSKIP,[1:4]');
+        %    ExtractedVideoFeatures = [ExtractedVideoFeatures;TempFeatures];
+        %end
+
         
        % Formate the entire Scene, Each Row is a different Window/Scene
         if iscell( ExtractedVideoFeatures)
@@ -102,12 +145,18 @@ function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
             clear Tags
             [Tags{1:ExtractedSceneCount}] = deal(VideoList{i,5});
             DescriptorGroup = [DescriptorGroup;Tags'];
+            clear Tags
+            [Tags{1:ExtractedSceneCount}] = deal(VideoList{i,3});
+            VidName = [VidName;Tags'];
             
         end
         % Output Process Time
         currentTime = toc; totalTime = totalTime + currentTime;
-        disp(strcat(num2str(currentTime),'(',num2str(totalTime),')'));
+        disp(strcat(num2str(currentTime),'(',num2str(totalTime),')',...
+            num2str(currentTime/ExtractedSceneCount)));
     end
+    
+    Descriptors(isnan(Descriptors)) = 0;
     
     DescriptorsCopy = Descriptors;
     
@@ -124,6 +173,7 @@ function [  GEPNonPCADescriptors,GEPDescriptors,GEPTags,GEPFlowList,GEPGroup]...
         'GEPGroup',...
         'GEPFlowList',...
         'GEPNonPCADescriptors',...
+        'VidName',...
         '-v7.3');
 
         save(strcat(OUTPUT,'/Settings','.mat'),...
