@@ -17,7 +17,7 @@ $RECYCLE.BIN/
 # Matlab Data Files
 *.mat
 *.asv
-
+*.avi
 # =========================
 # Operating System Files
 # =========================
@@ -45,3 +45,11 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+\Crowd-Violence-Detection\Space Time Interest Points\KTH\*
+\Crowd-Violence-Detection\Space Time Interest Points\UMN\*
+\Crowd-Violence-Detection\Space Time Interest Points\UCF\*
+\Space Time Interest Points\KTH\*
+\Space Time Interest Points\UMN\*
+\Space Time Interest Points\UCF\*
