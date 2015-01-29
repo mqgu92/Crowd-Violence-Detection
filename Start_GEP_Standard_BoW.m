@@ -24,7 +24,7 @@ SUBSET_SIZE = 500000;
 WORDS = 4000;
 BACKGROUNDTYPE = 1;
 WindowSize = 12;
-WindowSkip = 18;
+WindowSkip = 1;
 WindowSplit = 3;
 ImageResize = 1;
 

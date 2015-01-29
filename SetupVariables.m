@@ -9,7 +9,7 @@ global LINEAR_SVM_VERBOSE;
 global DIR_STIP;
     DIR_STIP = fullfile(pwd,'Space Time Interest Points');
 
-VIDEOSET = 'E:\Datasets\Video';    
+VIDEOSET = 'C:\Users\c1112308\Documents\Datasets\Video';    
 DATA_GLCM = 'F:\DATA\DATA-GLCMMEX';
 
 DATA_VIDEO_UCF = struct('dir',[VIDEOSET,'\UCF Modified\Normal_Abnormal_Crowd Converted'],...

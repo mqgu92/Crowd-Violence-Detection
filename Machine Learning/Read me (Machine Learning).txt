@@ -1,0 +1,11 @@
+Machine Learning Methods Implemented:
+Random Forest       Multi
+Linear SVM          Multi, Binary
+Non-Linear          Binary
+
+Input Form
+
+Random Forest       Vector, Train Index (logical), Test Index (logical), Class index, Class Definitions 
+Linear SVM          Vector, Train Index (logical), Test Index (logical), Class index, Class Definitions 
+Non-Linear SVM      Vector, Train Index (logical), Test Index (logical), Class index, Class Definitions 
+
