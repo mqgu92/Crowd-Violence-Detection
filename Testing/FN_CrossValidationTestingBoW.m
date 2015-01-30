@@ -1,4 +1,4 @@
-function [RAND_FOREST,LINEAR_SVM] = FN_CrossValidationTestingBoW( DATA,DATA_GROUP,DATA_TAGS,USE_LINEAR_SVM,USE_RANDOM_FOREST,Param_GLCM,WORDS,SUBSET_SIZE,WINDOWSPLIT )
+function [RAND_FOREST,LINEAR_SVM] = FN_CrossValidationTestingBoW( DATA,USE_LINEAR_SVM,USE_RANDOM_FOREST,Param_GLCM,WORDS,SUBSET_SIZE,WINDOWSPLIT )
 global RANDOM_FOREST_VERBOSE;
 global RANDOM_FOREST_TREES;
 global RANDOM_FOREST_VERBOSE_MODEL;
@@ -20,6 +20,11 @@ if isempty(RANDOM_FOREST_TREES)
     RANDOM_FOREST_TREES = 50;
 end
 
+%Structure Data
+[ structured_data,structured_point_data,structured_point_information ] = EXP_structure_data(DATA,false,true);
+ DATA_TAGS = structured_point_information(:,1);
+ DATA_GROUP = structured_point_information(:,3);
+ 
 Folds = max(cell2mat(DATA_GROUP));
 DataSplit = cell(Folds,5);
 
@@ -39,6 +44,9 @@ LinearSVM_Final_decision       = cell(Folds,1);
 LinearSVM_Actual_answer        = cell(Folds,1);
 LinearSVM_Vocabulary        = cell(Folds,1);
 
+
+
+
 [G GN] = grp2idx(DATA_TAGS);  % Reduce character tags to numeric grouping
 
 for k = 1: Folds
@@ -55,11 +63,7 @@ for k = 1: Folds
     DataSplit{k,4} = G;
     DataSplit{k,5} = GN;
     
-    %Generate Vocobulary from Training Data
-    
-    UnFormattedData = FN_ReformalizeDescriptorFromStructure( DATA, Param_GLCM.pyramid,WINDOWSPLIT,8 );
-    TRAINData = FN_ReformalizeDescriptorFromStructure( DATA(TRAINIDX,:), Param_GLCM.pyramid,WINDOWSPLIT,8 );
-    TRAINData = cell2mat(TRAINData);
+    TRAINData = cell2mat(DATA(:,1));
     % Pick a subset
     if SUBSET_SIZE <= length(TRAINData)
         SubsetInd = randperm(length(TRAINData));
@@ -69,20 +73,22 @@ for k = 1: Folds
     end
     
     if length(SubsetInd) < WORDS
-        VOCAB = ML_VocabGeneration( TRAINData(SubsetInd,:), length(SubsetInd) );
+        VOCAB = ML_VocabGeneration( TRAINData(SubsetInd,:), round(length(SubsetInd)/2) )';
+        
     else
-        VOCAB = ML_VocabGeneration( TRAINData(SubsetInd,:), WORDS );   
+        VOCAB = ML_VocabGeneration( TRAINData(SubsetInd,:), WORDS )';   
     end
     
-    clear TRAINData;
-    
-    
-    REFORMALIZEDDATA = ML_NearestWord( UnFormattedData, VOCAB,WORDS );
 
-    % Reformalulate back into a Structure
-   % DATA = FN_ReformalizeDescriptorToStructure( WordRepresentation, Param_GLCM.pyramid,WORDS );
-
+ 
     
+     WordData = ML_NearestWord( DATA(:,1), VOCAB,WORDS );
+    DATACOPY = DATA;
+    DATACOPY(:,1) = num2cell(WordData,2);
+    [structured_data,~,~ ] = EXP_structure_data(DATACOPY,false,true);
+    
+    REFORMALIZEDDATA = cell2mat(cellfun(@(structured_data) sum(structured_data,1),structured_data,'UniformOutput',false));
+    %REFORMALIZEDDATA = cell2mat(structured_data(:,1));
     
     if USE_LINEAR_SVM
     %% TEST USING LINEAR SVM

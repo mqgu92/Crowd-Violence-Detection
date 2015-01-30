@@ -11,7 +11,8 @@ function [ VOCAB ] = ML_VocabGeneration( DATA, WORDS )
     %Cluster and return Centroids
     tic;
     %[idx,VOCAB] = kmeans3(DATA, WORDS,'EmptyAction','drop');
-    VOCAB = vl_kmeans(transpose(DATA), WORDS);
+    %VOCAB = vl_kmeans(transpose(DATA), WORDS);
+    [idx, VOCAB] = kmeans((DATA),WORDS,'distance','sqeuclidean');
     VOCAB = transpose(VOCAB);
     disp('---Vocab Generated---');
     t = toc;

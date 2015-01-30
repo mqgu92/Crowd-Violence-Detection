@@ -1,15 +1,15 @@
 global RANDOM_FOREST_VERBOSE;
     RANDOM_FOREST_VERBOSE = true;
 global RANDOM_FOREST_TREES;
-    RANDOM_FOREST_TREES = 15;
+    RANDOM_FOREST_TREES = 50;
 global RANDOM_FOREST_VERBOSE_MODEL;
     RANDOM_FOREST_VERBOSE_MODEL = false;
 global LINEAR_SVM_VERBOSE;
-    LINEAR_SVM_VERBOSE = true;
+    LINEAR_SVM_VERBOSE = false;
 global DIR_STIP;
     DIR_STIP = fullfile(pwd,'Space Time Interest Points');
 
-VIDEOSET = 'C:\Users\c1112308\Documents\Datasets\Video';    
+VIDEOSET = 'E:\Datasets\Video';    
 DATA_GLCM = 'F:\DATA\DATA-GLCMMEX';
 
 DATA_VIDEO_UCF = struct('dir',[VIDEOSET,'\UCF Modified\Normal_Abnormal_Crowd Converted'],...
@@ -45,7 +45,7 @@ DATA_VIDEO_KTHVTT = struct('dir',[VIDEOSET,'\KTH VTT']...
     ,'name','KTH','fold', 0); % The same descriptors, just different tags
 
 DATA_VIDEO_VF = struct('dir',[VIDEOSET,'\Violent Flows Ver']...
-    ,'name','VF','fold', 5);
+    ,'name','VF_2','fold', 5);
 
 DATA_VIDEO_UMNSCENE1 = struct('dir','F:\Videos\UMN Scene 1',...
     'name','UMN_SCENE1','fold', 2);

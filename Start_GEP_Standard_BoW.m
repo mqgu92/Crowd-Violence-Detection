@@ -1,6 +1,6 @@
 SetupVariables;
 
-DATA_VIDEO_CHOSENSET = DATA_VIDEO_CVDMULTI;
+DATA_VIDEO_CHOSENSET = DATA_VIDEO_VF;
 
 VideoList = FN_PopulateStandardList(DATA_VIDEO_CHOSENSET.dir,DATA_VIDEO_CHOSENSET.fold);
 
@@ -8,7 +8,7 @@ Param_GLCM = Param_GLCM_Default;
 
 Param_GLCM = struct('baseoffsets', [1 0;-1 0;0 1;0 -1],...
     'graylevel',64,...
-    'pyramid',[1 1; 2 2],...
+    'pyramid',[2 2],...
     'range',[1 2] );
 %    'pyramid',[1 1; 1 2; 2 1; 2 2; 3 3; 1 3; 2 3; 3 1; 3 2; 4 4],...
 % Param_GLCM = struct('baseoffsets', [1,1;0,1;1,0;1,-1;-1,1;-1,-1;0,-1;-1,0],...
@@ -23,14 +23,14 @@ Param_PixelDifference=  Param_PixelDifference_Default;
 SUBSET_SIZE = 500000;
 WORDS = 4000;
 BACKGROUNDTYPE = 1;
-WindowSize = 12;
-WindowSkip = 1;
-WindowSplit = 3;
+WindowSize = 24;
+WindowSkip = 24;
+WindowSplit = 4;
 ImageResize = 1;
 
 % Extract Descriptors
-[GEPNonPCADescriptors,~,GEPTags,GEPFlowList,GEPGroup]...
-    = FN_GEPDescriptor(VideoList,...
+[unstructured_data]...
+    = FN_GEPDescriptorNew(VideoList,...
     DATA_VIDEO_CHOSENSET,...
     Param_GLCM,...
     Param_EdgeCardinality,...
@@ -41,11 +41,11 @@ ImageResize = 1;
     ImageResize,...
     BACKGROUNDTYPE);
 
+% Structure data for testing
+
 % Perform Classification
 [RANDOM_FOREST,LINEAR_SVM] = ...
-    FN_CrossValidationTestingBoW( GEPNonPCADescriptors,...
-    GEPGroup,...
-    GEPTags,...
+    FN_CrossValidationTestingBoW( unstructured_data,...
     true,...
     true,...
     Param_GLCM,WORDS,SUBSET_SIZE,WindowSplit);
@@ -70,17 +70,3 @@ mean(RANDOM_FOREST{2})
 title('ROC before and after feature selection');
 legend(['Linear SVM : ',num2str(LINAUC)]);    
 mean(LINEAR_SVM{2})
-% 
-% GEPNonPCADescriptors = FN_ReformalizeDescriptorFromStructure( GEPNonPCADescriptors, Param_GLCM.pyramid,8 );
-% 
-% % Pick a subset
-% SubsetInd = randperm(length(GEPNonPCADescriptors));
-% SubsetInd = SubsetInd(1:Subset);
-% 
-% VOCAB = ML_VocabGeneration( GEPNonPCADescriptors(SubsetInd,:), WORDS );
-% 
-% WordRepresentation = ML_NearestWord( GEPNonPCADescriptors, VOCAB,WORDS );
-% 
-% % Reformalulate back into a Structure
-% GEPNonPCADescriptors = FN_ReformalizeDescriptorToStructure( WordRepresentation, Param_GLCM.pyramid,WORDS );
-% 
